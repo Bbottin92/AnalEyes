@@ -1,0 +1,240 @@
+import React, { useState } from 'react';
+import { FileText, Upload, Terminal, Activity, BarChart2, Play, Pause, Trash2, Settings, Save, Filter } from 'lucide-react';
+
+const DataProcessingApp = () => {
+  const [activeTab, setActiveTab] = useState('preprocess');
+  const [logMessages, setLogMessages] = useState([
+    { level: 'info', time: '10:45:23', message: 'Application initialized' },
+    { level: 'info', time: '10:45:24', message: 'Loading configuration from environment' },
+    { level: 'info', time: '10:45:25', message: 'Registered 3 preprocessor plugins' }
+  ]);
+  
+  const [progress, setProgress] = useState({
+    active: false,
+    percentComplete: 0,
+    operation: 'Idle',
+    startTime: null
+  });
+  
+  // Simulate starting a process
+  const startProcess = () => {
+    setProgress({
+      active: true,
+      percentComplete: 0,
+      operation: 'Preprocessing data',
+      startTime: new Date()
+    });
+    
+    // Add log entry
+    addLogMessage('info', 'Starting preprocessing operation');
+    
+    // Simulate progress updates
+    simulateProgress();
+  };
+  
+  // Simulate progress updates
+  const simulateProgress = () => {
+    let percent = 0;
+    const interval = setInterval(() => {
+      percent += 5;
+      if (percent <= 100) {
+        setProgress(prev => ({
+          ...prev,
+          percentComplete: percent,
+          operation: percent < 100 ? 'Preprocessing data' : 'Preprocessing complete'
+        }));
+        
+        if (percent === 25) {
+          addLogMessage('info', 'Data validation complete');
+        } else if (percent === 50) {
+          addLogMessage('info', 'Data cleansing in progress');
+        } else if (percent === 75) {
+          addLogMessage('info', 'Applying final transformations');
+        } else if (percent === 100) {
+          addLogMessage('success', 'Preprocessing complete');
+          setProgress(prev => ({
+            ...prev,
+            active: false
+          }));
+          clearInterval(interval);
+        }
+      } else {
+        clearInterval(interval);
+      }
+    }, 500);
+  };
+  
+  // Add a log message
+  const addLogMessage = (level, message) => {
+    const now = new Date();
+    const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+    setLogMessages(prev => [...prev, { level, time, message }]);
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Activity className="h-6 w-6 text-blue-600" />
+          <h1 className="text-xl font-semibold text-gray-800">Data Processing Application</h1>
+        </div>
+        <button className="p-2 rounded-md bg-gray-200 hover:bg-gray-300">
+          <Settings className="h-5 w-5 text-gray-700" />
+        </button>
+      </header>
+      
+      {/* Main content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-16 bg-gray-800 flex flex-col items-center py-4">
+          <button 
+            className={`p-2 rounded-md mb-4 ${activeTab === 'preprocess' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+            onClick={() => setActiveTab('preprocess')}
+          >
+            <FileText className="h-6 w-6 text-white" />
+          </button>
+          <button 
+            className={`p-2 rounded-md mb-4 ${activeTab === 'process' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+            onClick={() => setActiveTab('process')}
+          >
+            <Filter className="h-6 w-6 text-white" />
+          </button>
+          <button 
+            className={`p-2 rounded-md mb-4 ${activeTab === 'analyze' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+            onClick={() => setActiveTab('analyze')}
+          >
+            <Activity className="h-6 w-6 text-white" />
+          </button>
+          <button 
+            className={`p-2 rounded-md mb-4 ${activeTab === 'visualize' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+            onClick={() => setActiveTab('visualize')}
+          >
+            <BarChart2 className="h-6 w-6 text-white" />
+          </button>
+        </div>
+        
+        {/* Content area */}
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Component header */}
+          <div className="bg-white p-4 shadow-sm">
+            <h2 className="text-lg font-medium text-gray-800">
+              {activeTab === 'preprocess' && 'Data Preprocessor'}
+              {activeTab === 'process' && 'Data Processor'}
+              {activeTab === 'analyze' && 'Data Analyzer'}
+              {activeTab === 'visualize' && 'Data Visualizer'}
+            </h2>
+          </div>
+          
+          {/* Component content */}
+          <div className="flex-1 p-4 overflow-auto">
+            {activeTab === 'preprocess' && (
+              <div className="bg-white rounded-lg shadow p-4 mb-4">
+                <h3 className="text-md font-medium mb-4">Input Data</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-4">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">Drag and drop files here or</p>
+                  <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Browse Files
+                  </button>
+                </div>
+                
+                <h3 className="text-md font-medium mb-2">Preprocessing Options</h3>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Cleansing Rules
+                    </label>
+                    <select className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                      <option>Remove null values</option>
+                      <option>Trim whitespace</option>
+                      <option>Normalize case</option>
+                      <option>Remove duplicates</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Data Type Detection
+                    </label>
+                    <select className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                      <option>Automatic</option>
+                      <option>Manual specification</option>
+                      <option>From schema</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end space-x-2">
+                  <button 
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 flex items-center"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Clear
+                  </button>
+                  <button 
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                    onClick={startProcess}
+                  >
+                    <Play className="h-4 w-4 mr-1" />
+                    Run Preprocessor
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Placeholder for other tabs */}
+            {activeTab !== 'preprocess' && (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <h3 className="text-lg font-medium text-gray-800 mb-2">
+                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Component
+                </h3>
+                <p className="text-gray-500">
+                  This component is under development.
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Progress bar */}
+          {progress.active && (
+            <div className="bg-white p-4 border-t border-gray-200">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-gray-700">{progress.operation}</span>
+                <span className="text-sm font-medium text-gray-700">{progress.percentComplete}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full" 
+                  style={{ width: `${progress.percentComplete}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+          
+          {/* Logs panel */}
+          <div className="bg-gray-900 text-white p-2 h-48 overflow-y-auto">
+            <div className="flex items-center mb-2">
+              <Terminal className="h-4 w-4 mr-2" />
+              <h3 className="text-sm font-medium">Logs</h3>
+            </div>
+            {logMessages.map((log, index) => (
+              <div key={index} className="text-sm font-mono mb-1">
+                <span className={`mr-2 ${
+                  log.level === 'info' ? 'text-blue-400' : 
+                  log.level === 'warning' ? 'text-yellow-400' : 
+                  log.level === 'error' ? 'text-red-400' : 
+                  'text-green-400'
+                }`}>
+                  [{log.time}] [{log.level.toUpperCase()}]
+                </span>
+                <span className="text-gray-300">{log.message}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DataProcessingApp;
